@@ -126,6 +126,7 @@ def save_texts_and_audios(
             tqdm,
             desc="Storing text transcripts (chunks progress)",
             total=len(futures),
+            position=1,
         )
 
     cuts = combine(progress(f.result() for f in futures))
@@ -332,8 +333,3 @@ if __name__ == "__main__":
         storage_path=f"{output_path}/{subset}"
         cuts = cuts.to_eager()
         save_texts_and_audios(cuts=cuts, storage_path=storage_path, num_jobs=32)
-
-        # output_path = f"{new_prefix}/mfa_tg_data"
-        # storage_path=f"{output_path}/{subset}"
-        # save_audios_and_textgrids(cuts=cuts, storage_path=storage_path, num_jobs=32)
-        
