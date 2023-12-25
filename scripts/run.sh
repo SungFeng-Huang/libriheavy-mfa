@@ -1,12 +1,14 @@
-# runned: dev
+mfa model download acoustic english_us_arpa
+mfa model download dictionary english_us_arpa
 # for subset in dev test_clean test_other; do
 for subset in medium; do
     echo $subset;
     corpus_dir=/datasets/LibriLight/mfa_data/$subset/
     aligned_dir=/datasets/LibriLight/mfa_data_aligned/$subset/
+    cmd_option="-j 16"
     # corpus_dir=/datasets/LibriLight/mfa_tg_data/$subset/
     # aligned_dir=/datasets/LibriLight/mfa_tg_data_aligned/$subset/
     # cmd_option="-s 6"
     time \
-        mfa align $corpus_dir english_us_arpa english_us_arpa $aligned_dir --config_path config.yaml --clean True;
+        mfa align $corpus_dir english_us_arpa english_us_arpa $aligned_dir --config_path config.yaml --clean True $cmd_option;
 done
