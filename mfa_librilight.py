@@ -329,7 +329,7 @@ if __name__ == "__main__":
         cuts = cuts.filter(lambda c: ',' not in c.id)
         cuts = cuts.map(partial(change_prefix, old_prefix=old_prefix, new_prefix=new_prefix))
 
-        output_path = f"{new_prefix}/mfa_data"
+        output_path = f"{new_prefix}_aligned/raw_data_cuts"
         storage_path=f"{output_path}/{subset}"
         cuts = cuts.to_eager()
         save_texts_and_audios(cuts=cuts, storage_path=storage_path, num_jobs=32)
