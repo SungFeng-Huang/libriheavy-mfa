@@ -315,8 +315,10 @@ def save_audios_and_textgrids(
 
 
 if __name__ == "__main__":
-    old_prefix="download/librilight"
-    new_prefix="/datasets/LibriLight"
+    old_prefix = "download/librilight"
+    new_prefix = "/datasets/LibriLight"
+    manifests_dir = "data/LibriHeavy"
+    output_dir = f"{new_prefix}_aligned/raw_data_cuts"
 
     # subsets = ["dev", "test_clean", "test_other"]
     # subsets = ["small"]
@@ -325,11 +327,10 @@ if __name__ == "__main__":
 
     for subset in subsets:
         # can not lazily split with progress bar
-        cuts: CutSet = load_manifest_lazy_or_eager(f"data/LibriHeavy/libriheavy_cuts_{subset}.jsonl.gz", CutSet)
+        cuts: CutSet = load_manifest_lazy_or_eager(f"{manifests_dir}/libriheavy_cuts_{subset}.jsonl.gz", CutSet)
         cuts = cuts.filter(lambda c: ',' not in c.id)
         cuts = cuts.map(partial(change_prefix, old_prefix=old_prefix, new_prefix=new_prefix))
 
-        output_path = f"{new_prefix}_aligned/raw_data_cuts"
-        storage_path=f"{output_path}/{subset}"
+        storage_path=f"{output_dir}/{subset}"
         cuts = cuts.to_eager()
         save_texts_and_audios(cuts=cuts, storage_path=storage_path, num_jobs=32)

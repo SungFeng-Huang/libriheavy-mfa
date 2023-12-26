@@ -30,12 +30,11 @@
 	// },
 
 	"mounts": [
-		"type=bind,source=/ssd/LibriLight,target=/datasets/LibriLight",
-		"type=bind,source=/ssd/LibriTTS_R,target=/datasets/LibriTTS_R"
+		"type=bind,source=/ssd/LibriLight,target=/datasets/LibriLight"
 	],
 
 	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
-	"remoteUser": "root",
-	"runArgs": ["--gpus", "all"]
+	"remoteUser": "root"
+	// "runArgs": ["--gpus", "all"]
 
 }
