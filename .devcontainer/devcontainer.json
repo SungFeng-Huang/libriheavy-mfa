@@ -30,7 +30,8 @@
 	// },
 
 	"mounts": [
-		"type=bind,source=/ssd/LibriLight,target=/datasets/LibriLight"
+		"type=bind,source=/ssd/LibriLight,target=/datasets/LibriLight",
+		"type=bind,source=/ssd/LibriLight_aligned,target=/datasets/LibriLight_aligned"
 	],
 
 	// Uncomment to connect as an existing user other than the container default. More info: https://aka.ms/dev-containers-non-root.
