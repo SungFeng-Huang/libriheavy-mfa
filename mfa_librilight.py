@@ -8,6 +8,7 @@ from lhotse.utils import Pathlike, split_sequence
 from lhotse.serialization import load_manifest_lazy_or_eager, load_manifest
 
 import os
+import shutil
 import logging
 from tqdm import tqdm
 from functools import partial
@@ -312,6 +313,18 @@ def save_audios_and_textgrids(
     )
 
 
+def get_subset_audio(subset, libriheavy_dir, old_prefix, librilight_dir, eval_dir):
+    cuts: CutSet = load_manifest_lazy_or_eager(f"{libriheavy_dir}/libriheavy_cuts_{subset}.jsonl.gz", CutSet)
+    cuts = cuts.filter(lambda c: ',' not in c.id)
+    cuts = cuts.map(partial(change_prefix, old_prefix=old_prefix, new_prefix=librilight_dir))
+    cuts = cuts.to_eager()
+
+    for cut in tqdm(cuts):
+        rec = cut.recording
+        audio_src: Pathlike = rec.sources[0].source
+        audio_dst: Pathlike = audio_src.replace(librilight_dir, eval_dir)
+        os.makedirs(audio_dst.rsplit('/', 1)[0], exist_ok=True)
+        shutil.copy2(audio_src, audio_dst)
 
 
 if __name__ == "__main__":
@@ -320,17 +333,27 @@ if __name__ == "__main__":
     libriheavy_dir = "data/LibriHeavy"
     corpus_dir = f"/datasets/LibriLight_aligned/raw_data_cuts"
 
-    # subsets = ["dev", "test_clean", "test_other"]
-    # subsets = ["small"]
-    subsets = ["medium"]
-    # subsets = ["large", "test_clean_large", "tesst_other_large"]
+    copy_eval_audio = True
+    parse_mfa_dir = True
 
-    for subset in subsets:
-        # can not lazily split with progress bar
-        cuts: CutSet = load_manifest_lazy_or_eager(f"{libriheavy_dir}/libriheavy_cuts_{subset}.jsonl.gz", CutSet)
-        cuts = cuts.filter(lambda c: ',' not in c.id)
-        cuts = cuts.map(partial(change_prefix, old_prefix=old_prefix, new_prefix=librilight_dir))
+    # collect used eval audios, in future case of not fully downloading LibriLight dataset subsets
+    if copy_eval_audio:
+        subsets = ["dev", "test_clean", "test_other"]
+        for subset in subsets:
+            get_subset_audio(subset=subset, libriheavy_dir=libriheavy_dir, old_prefix=old_prefix, librilight_dir=librilight_dir, eval_dir="/datasets/LibriLight_aligned/raw_eval_data")
 
-        storage_path=f"{corpus_dir}/{subset}"
-        cuts = cuts.to_eager()
-        save_texts_and_audios(cuts=cuts, storage_path=storage_path, num_jobs=32)
+
+    if parse_mfa_dir:
+        # subsets = ["small"]
+        subsets = ["medium"]
+        # subsets = ["large", "test_clean_large", "tesst_other_large"]
+
+        for subset in subsets:
+            # can not lazily split with progress bar
+            cuts: CutSet = load_manifest_lazy_or_eager(f"{libriheavy_dir}/libriheavy_cuts_{subset}.jsonl.gz", CutSet)
+            cuts = cuts.filter(lambda c: ',' not in c.id)
+            cuts = cuts.map(partial(change_prefix, old_prefix=old_prefix, new_prefix=librilight_dir))
+
+            storage_path=f"{corpus_dir}/{subset}"
+            cuts = cuts.to_eager()
+            save_texts_and_audios(cuts=cuts, storage_path=storage_path, num_jobs=32)
